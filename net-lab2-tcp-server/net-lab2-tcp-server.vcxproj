@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7C97EDCA-6560-42F1-8A3D-2D4888E89631}</ProjectGuid>
+    <ProjectGuid>{8E516EF6-4281-4D8B-B19E-EE495E71C8E9}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>netlab2tcpclient</RootNamespace>
+    <RootNamespace>netlab2tcpserver</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
