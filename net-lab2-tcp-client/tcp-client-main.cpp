@@ -6,9 +6,6 @@
 #include <winsock2.h>
 //#include <windows.h>
 
-//#define PORT 1500
-//#define SERVERADDR "192.168.0.62" //IP-адрес
-
 int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "");
@@ -16,15 +13,15 @@ int main(int argc, char* argv[])
 	int PORT;                   //переменная для номера порта
 	char s_port[20];            //строка для номера порта
 	char buff[1024];
-	printf("*** TCP CLIENT from ALEXEY GORELOV ***\n\n");
+	printf("=== simple TCP client ===\n\n");
 
 	printf("Введите IP-адрес или NetBIOS-имя сервера: ");
-	gets(SERVERADDR);                        //указываем IP или имя
+	gets_s(SERVERADDR, 20);                        //указываем IP или имя
 	printf("Введите номер порта: ");
-	gets(s_port);                            //указываем номер порта в строку
+	gets_s(s_port, 20);                            //указываем номер порта в строку
 	PORT = atoi(s_port);                     //переводим строку в число int
 
-											 // 1 - инициализация библиотеки Winsock
+	// 1 - инициализация библиотеки Winsock
 	if (WSAStartup(0x202, (WSADATA *)&buff[0]))
 	{
 		printf("WSAStart error %d\n", WSAGetLastError());
@@ -40,19 +37,18 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	// 3 - установка соединения
-	// заполнение структуры sockaddr_in - указание адреса и порта сервера
+	// Установка соединения. Заполнение структуры sockaddr_in - указание адреса и порта сервера
 	sockaddr_in dest_addr;
 	dest_addr.sin_family = AF_INET;
 	dest_addr.sin_port = htons(PORT);
 	HOSTENT *hst;
 
-	// преобразование IP-адреса из символьного в сетевой формат
+	// Преобразование IP-адреса из символьного в сетевой формат
 	if (inet_addr(SERVERADDR) != INADDR_NONE)
 		dest_addr.sin_addr.s_addr = inet_addr(SERVERADDR);
 	else
 	{
-		// попытка получить IP-адрес по доменному имени сервера
+		// Попытка получить IP-адрес по доменному имени сервера
 		if (hst = gethostbyname(SERVERADDR))
 			// hst->h_addr_list содержит не массив адресов,
 			// а массив указателей на адреса
@@ -67,7 +63,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// адрес сервера получен - пытаемся установить соединение
+	// Адрес сервера получен - пытаемся установить соединение
 	if (connect(my_sock, (sockaddr *)&dest_addr, sizeof(dest_addr)))
 	{
 		printf("Ошибка подключения. %d\n", WSAGetLastError());
@@ -79,10 +75,10 @@ int main(int argc, char* argv[])
 	char str[10];
 	int nsize;
 	printf("Укажите размер передаваемых данных: ");
-	gets(str);
+	gets_s(str, 10);
 	nsize = atoi(str);
-
-	char buffer[nsize];     // буфер для передачи
+#define NSIZE 32768
+	char buffer[NSIZE];     // буфер для передачи
 	for (int i = 0; i <= nsize; i++) buffer[i] = 'a';   //инициализируем буфер символом 'a'
 
 	int start = GetTickCount();    //засечка системного времени старта
@@ -90,16 +86,16 @@ int main(int argc, char* argv[])
 	size_t nRetransmitBytesNum = 0;         //общее число байт
 	int nReaded = 0;                        //число байт "за один оборот"
 
-											// 4 - чтение и передача сообщений    
-	while (((GetTickCount() / 1000) - (start / 1000)) <= 20)  // интервал обмена - 20 секунд
+	// Чтение и передача сообщений    
+	while (((GetTickCount() / 1000) - (start / 1000)) <= 20)  // 20 секунд
 	{
-		send(my_sock, buffer, nsize, 0);                // отправили 
-		nReaded = recv(my_sock, buffer, nsize, 0);      // получили
+		send(my_sock, buffer, nsize, 0); // sending
+		nReaded = recv(my_sock, buffer, nsize, 0); // recieving
 		nRetransmitBytesNum += nReaded;
 	}
 
 	printf("Размер сообщения: %d\n", nsize);
-	printf("Количество байт:  %d\n", nRetransmitBytesNum);
+	printf("Байт:  %d\n", nRetransmitBytesNum);
 	printf("Пропускная способность: %d байта в секунду", nRetransmitBytesNum / 20);
 
 	getch();

@@ -41,7 +41,6 @@ int main(void)
 		exit(1);
 	}
 
-
 	//В API сокетов можно отключить алгоритм 
 	//Нейгла с помощью установки опции сокета TCP_NODELAY.
 	const int on = 1;
@@ -119,7 +118,7 @@ int main(void)
 			// Отсылаем dct полученные только что данные обратно
 			if (send(NS, sReceiveBuffer, nReaded, 0) < nReaded)
 			{
-				fprintf(stderr, "Cann't send all data\n");
+				fprintf(stderr, "Can't send all data\n");
 			}
 			nRetransmitBytesNum += nReaded;
 		}

@@ -24,7 +24,7 @@ int main(void)
 	int PORT;                   //переменна€ дл€ номера порта
 	char s_port[20];            //строка дл€ номера порта
 	SOCKET  S;  //дескриптор прослушивающего сокета
-	printf("*** UDP CLIENT from ALEXEY GORELOV ***\n\n");
+	printf("=== simple UDP client ===\n\n");
 
 	sockaddr_in client, server;
 	WSADATA     wsadata;
@@ -64,9 +64,9 @@ int main(void)
 	}
 
 	printf("¬ведите IP-адрес или NetBIOS-им€ сервера: ");
-	gets(SERVERADDR);                        //указываем IP или им€
+	gets_s(SERVERADDR, 20);                        //указываем IP или им€
 	printf("¬ведите номер порта: ");
-	gets(s_port);                            //указываем номер порта в строку
+	gets_s(s_port, 20);                            //указываем номер порта в строку
 	PORT = atoi(s_port);                     //переводим строку в число int
 
 	server.sin_family = AF_INET;
@@ -96,10 +96,10 @@ int main(void)
 	char str[10];
 	int nsize;
 	printf("”кажите размер передаваемых данных: ");
-	gets(str);
+	gets_s(str);
 	nsize = atoi(str);
-
-	char sReceiveBuffer[nsize];     // буфер дл€ передачи
+#define NSIZE 32768
+	char sReceiveBuffer[NSIZE];     // буфер дл€ передачи
 	for (int i = 0; i <= nsize; i++) sReceiveBuffer[i] = 'a';   //инициализируем буфер символом 'a'
 
 	int start = GetTickCount();    //засечка системного времени старта
@@ -108,8 +108,8 @@ int main(void)
 	int nSendBytes = 0;
 	int nBytesReaded = 0;                        //число байт "за один оборот"
 
-												 // 4 - чтение и передача сообщений    
-	while (((GetTickCount() / 1000) - (start / 1000)) <= 20)  // интервал обмена - 20 секунд
+	// чтение и передача сообщений    
+	while (((GetTickCount() / 1000) - (start / 1000)) <= 20)  // 20 секунд
 	{
 		int nFromSize = sizeof(server);
 
@@ -119,7 +119,7 @@ int main(void)
 	}
 
 	printf("–азмер сообщени€: %d\n", nsize);
-	printf(" оличество байт:  %d\n", nRetransmitBytesNum);
+	printf("Ѕайт:  %d\n", nRetransmitBytesNum);
 	printf("ѕропускна€ способность: %d байта в секунду", nRetransmitBytesNum / 20);
 
 	getch();
