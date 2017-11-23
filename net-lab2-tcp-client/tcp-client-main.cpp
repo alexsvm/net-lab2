@@ -72,31 +72,30 @@ int main(int argc, char* argv[])
 
 	printf("Подключение к %s успешно установлено.\n\n", &SERVERADDR);
 
-	char str[10];
-	int nsize;
-	printf("Укажите размер передаваемых данных: ");
-	gets_s(str, 10);
-	nsize = atoi(str);
-#define NSIZE 32768
-	char buffer[NSIZE];     // буфер для передачи
-	for (int i = 0; i <= nsize; i++) buffer[i] = 'a';   //инициализируем буфер символом 'a'
-
-	int start = GetTickCount();    //засечка системного времени старта
-
-	size_t nRetransmitBytesNum = 0;         //общее число байт
-	int nReaded = 0;                        //число байт "за один оборот"
-
-	// Чтение и передача сообщений    
-	while (((GetTickCount() / 1000) - (start / 1000)) <= 20)  // 20 секунд
-	{
-		send(my_sock, buffer, nsize, 0); // sending
-		nReaded = recv(my_sock, buffer, nsize, 0); // recieving
-		nRetransmitBytesNum += nReaded;
+#define TSec 1 * 1000
+#define BuffSize 1 << 15
+	char buffer[BuffSize];				// буфер для передачи
+	size_t nRetransmitBytesNum;     //общее число байт
+	int nReaded;                    //число байт "за один оборот"
+	int start, end;
+	int BitPerSec;
+	for (int nsize = 1; nsize <= (1 << 15); nsize = nsize << 1) {
+		printf("Размер пакета: %d\n", nsize);
+		nRetransmitBytesNum = 0;
+		nReaded = 0;
+		start = GetTickCount();    //засечка системного времени старта
+		while ((GetTickCount() - start) <= TSec) // Чтение и передача сообщений 
+		{
+			send(my_sock, buffer, nsize, 0); // sending
+			nReaded = recv(my_sock, buffer, nsize, 0); // recieving
+			nRetransmitBytesNum += nReaded;
+		}
+		end = GetTickCount();
+		BitPerSec = ((nRetransmitBytesNum * 8) / ((end - start) / 1000));
+		printf("  Байт:  %d\n", nRetransmitBytesNum);
+		printf("  Пропускная способность: %d бит/сек\n", BitPerSec );
 	}
 
-	printf("Размер сообщения: %d\n", nsize);
-	printf("Байт:  %d\n", nRetransmitBytesNum);
-	printf("Пропускная способность: %d байта в секунду", nRetransmitBytesNum / 20);
 
 	getch();
 	closesocket(my_sock);

@@ -93,34 +93,34 @@ int main(void)
 		}
 	}
 
-	char str[10];
-	int nsize;
-	printf("”кажите размер передаваемых данных: ");
-	gets_s(str);
-	nsize = atoi(str);
-#define NSIZE 32768
-	char sReceiveBuffer[NSIZE];     // буфер дл€ передачи
-	for (int i = 0; i <= nsize; i++) sReceiveBuffer[i] = 'a';   //инициализируем буфер символом 'a'
 
-	int start = GetTickCount();    //засечка системного времени старта
-
-	size_t nRetransmitBytesNum = 0;         //общее число байт
+#define TSec 1 * 1000
+#define BuffSize 1 << 15
+	char sReceiveBuffer[BuffSize];     // буфер дл€ передачи
+	size_t nRetransmitBytesNum;     //общее число байт
 	int nSendBytes = 0;
 	int nBytesReaded = 0;                        //число байт "за один оборот"
-
-	// чтение и передача сообщений    
-	while (((GetTickCount() / 1000) - (start / 1000)) <= 20)  // 20 секунд
-	{
+	//int nReaded;                    //число байт "за один оборот"
+	int start, end;
+	int BitPerSec;
+	for (int nsize = 1; nsize <= (1 << 15); nsize = nsize << 1) {
+		printf("–азмер пакета: %d\n", nsize);
+		nRetransmitBytesNum = 0;
+		nBytesReaded = 0;
 		int nFromSize = sizeof(server);
 
-		nSendBytes = sendto(S, sReceiveBuffer, nsize, 0, (sockaddr *)&server, nFromSize);
-		nBytesReaded = recvfrom(S, sReceiveBuffer, nsize, 0, (sockaddr *)&server, &nFromSize);
-		nRetransmitBytesNum += nBytesReaded;
+		start = GetTickCount();    //засечка системного времени старта
+		while ((GetTickCount() - start) <= TSec) // „тение и передача сообщений 
+		{
+			nSendBytes = sendto(S, sReceiveBuffer, nsize, 0, (sockaddr *)&server, nFromSize);
+			nBytesReaded = recvfrom(S, sReceiveBuffer, nsize, 0, (sockaddr *)&server, &nFromSize);
+			nRetransmitBytesNum += nBytesReaded;
+		}
+		end = GetTickCount();
+		BitPerSec = ((nRetransmitBytesNum * 8) / ((end - start) / 1000));
+		printf("  Ѕайт:  %d\n", nRetransmitBytesNum);
+		printf("  ѕропускна€ способность: %d бит/сек\n", BitPerSec);
 	}
-
-	printf("–азмер сообщени€: %d\n", nsize);
-	printf("Ѕайт:  %d\n", nRetransmitBytesNum);
-	printf("ѕропускна€ способность: %d байта в секунду", nRetransmitBytesNum / 20);
 
 	getch();
 	// «акрываем серверный сокет
