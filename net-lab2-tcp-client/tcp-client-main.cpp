@@ -2,9 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <conio.h>
-//#include <string.h>
 #include <winsock2.h>
-//#include <windows.h>
 
 int main(int argc, char* argv[])
 {
@@ -21,14 +19,14 @@ int main(int argc, char* argv[])
 	gets_s(s_port, 20);                            //указываем номер порта в строку
 	PORT = atoi(s_port);                     //переводим строку в число int
 
-	// 1 - инициализация библиотеки Winsock
+	// инициализация библиотеки Winsock
 	if (WSAStartup(0x202, (WSADATA *)&buff[0]))
 	{
 		printf("WSAStart error %d\n", WSAGetLastError());
 		return -1;
 	}
 
-	// 2 - создание сокета
+	// создание сокета
 	SOCKET my_sock;
 	my_sock = socket(AF_INET, SOCK_STREAM, 0);    //тип сокета - потоковый с предв. установкой соединения
 	if (my_sock < 0)          //если socket() вернула -1 - ошибка
